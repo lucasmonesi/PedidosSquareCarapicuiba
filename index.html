@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedido com Múltiplos Produtos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e5f3ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    form {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px 20px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 100px;
+      height: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .produto {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .produto h3 {
+      margin: 0 0 10px 0;
+      color: #007bff;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+      font-size: 0.9rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    #addProduto {
+      background: #007bff;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    #addProduto:hover {
+      background: #0056b3;
+    }
+
+    #submitBtn {
+      background: #28a745;
+      color: #fff;
+    }
+
+    #submitBtn:hover {
+      background: #218838;
+    }
+
+    .removeBtn {
+      background: #dc3545;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .removeBtn:hover {
+      background: #b52a37;
+    }
+
+  </style>
+</head>
+<body>
+  <form id="pedido-form">
+    <div class="logo">
+      <img src="./8dd92bcb-6860-427c-9358-3e12a5874472.png" alt="Logo da empresa">
+    </div>
+
+    <h2>Pedido de Produtos</h2>
+
+    <div id="produtos-container">
+      <!-- Produtos serão adicionados aqui -->
+    </div>
+
+    <button type="button" id="addProduto">+ Adicionar Produto</button>
+    <button type="submit" id="submitBtn">Enviar Pedido</button>
+    <p class="dev" style="text-align: center;">Desenvolvido por <a href="https://github.com/lucasmonesi">Lucas Monesi</a>©</p>
+  </form>
+
+  <template id="produto-template">
+    <div class="produto">
+      <h3>Produto</h3>
+      <label>Nome:</label>
+      <input type="text" class="name" placeholder="Nome de quem está pedindo" required />
+
+      <label>Descrição:</label>
+      <textarea class="descricao" rows="2" placeholder="Descrição do produto" required></textarea>
+
+      <label>Quantidade:</label>
+      <input type="number" class="quantidade" placeholder="Quantidade (Ex: 10)" required />
+
+      <label>Unidade:</label>
+      <input type="text" class="unidade" placeholder="Unidade (metros, kg...)" required />
+
+      <label>Marcas:</label>
+      <input type="text" class="marcas" placeholder="Marcas recomendadas" />
+
+      <label>Observação:</label>
+      <textarea class="observacao" rows="2" placeholder="Observações sobre esse pedido"></textarea>
+
+      <button type="button" class="removeBtn">Remover</button>
+    </div>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    emailjs.init("2Mg1wyWfcREThxizD");
+
+    const produtosContainer = document.getElementById('produtos-container');
+    const template = document.getElementById('produto-template');
+    const addProdutoBtn = document.getElementById('addProduto');
+
+    function addProduto() {
+      const clone = template.content.cloneNode(true);
+      clone.querySelector('.removeBtn').addEventListener('click', function () {
+        this.closest('.produto').remove();
+      });
+      produtosContainer.appendChild(clone);
+    }
+
+    // Adiciona um produto por padrão
+    addProduto();
+
+    addProdutoBtn.addEventListener('click', addProduto);
+
+    document.getElementById('pedido-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const produtos = document.querySelectorAll('.produto');
+      let corpo = '';
+
+      produtos.forEach((p, i) => {
+        const nome = p.querySelector('.name').value;
+        const descricao = p.querySelector('.descricao').value;
+        const quantidade = p.querySelector('.quantidade').value;
+        const unidade = p.querySelector('.unidade').value;
+        const marcas = p.querySelector('.marcas').value;
+        const observacao = p.querySelector('.observacao').value;
+
+        corpo += `
+        <div style="border: 1px solid #ccc; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px; background: #fafafa;">
+          <h4 style="margin: 0 0 10px;">Produto ${i + 1}</h4>
+          <p><strong>Nome:</strong> ${nome}</p>
+          <p><strong>Descrição:</strong> ${descricao}</p>
+          <p><strong>Quantidade:</strong> ${quantidade}</p>
+          <p><strong>Unidade:</strong> ${unidade}</p>
+          <p><strong>Marcas:</strong> ${marcas}</p>
+          <p><strong>Observação:</strong> ${observacao}</p>
+        </div>
+      `;
+      });
+
+      emailjs.send('service_yqzfkvc', 'template_dfbp5po', {
+        name: 'Pedido com múltiplos produtos',
+        descricao: corpo, // Reaproveitando a variável do template
+        quantidade: '',
+        unidade: '',
+        marcas: '',
+        observacao: ''
+      }).then(() => {
+        alert('Pedido enviado com sucesso!');
+        produtosContainer.innerHTML = '';
+        addProduto(); // Adiciona um produto limpo
+      }).catch(error => {
+        alert('Erro ao enviar pedido: ' + JSON.stringify(error));
+      });
+    });
+  </script>
+</body>
+</html>
