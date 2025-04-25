@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pedido com Múltiplos Produtos</title>
+  <link rel="icon" href="./8dd92bcb-6860-427c-9358-3e12a5874472.png">
   <style>
     * {
       box-sizing: border-box;
@@ -114,6 +115,27 @@
       background: #b52a37;
     }
 
+      #notificacao {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #28a745;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+  }
+
+  #notificacao.mostrar {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   </style>
 </head>
 <body>
@@ -136,11 +158,11 @@
   <template id="produto-template">
     <div class="produto">
       <h3>Produto</h3>
-      <label>Nome:</label>
-      <input type="text" class="name" placeholder="Nome de quem está pedindo" required />
+      <label>Nome de quem está pedindo:</label>
+      <input type="text" class="name" placeholder="Nome de quem está pedindo" required/>
 
-      <label>Descrição:</label>
-      <textarea class="descricao" rows="2" placeholder="Descrição do produto" required></textarea>
+      <label>Descrição do produto/Nome do produto:</label>
+      <textarea class="descricao" rows="2" placeholder="Descrição do produto/Nome do produto" required></textarea>
 
       <label>Quantidade:</label>
       <input type="number" class="quantidade" placeholder="Quantidade (Ex: 10)" required />
@@ -158,6 +180,10 @@
     </div>
   </template>
 
+  <div id="notificacao" class="notificacao-oculta">
+    <p>✅ Pedido enviado com sucesso!</p>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     emailjs.init("2Mg1wyWfcREThxizD");
@@ -173,6 +199,15 @@
       });
       produtosContainer.appendChild(clone);
     }
+
+    function mostrarNotificacao() {
+  const notificacao = document.getElementById('notificacao');
+  notificacao.classList.add('mostrar');
+
+  setTimeout(() => {
+    notificacao.classList.remove('mostrar');
+  }, 4000); // some depois de 4 segundos
+}
 
     // Adiciona um produto por padrão
     addProduto();
@@ -192,6 +227,7 @@
         const unidade = p.querySelector('.unidade').value;
         const marcas = p.querySelector('.marcas').value;
         const observacao = p.querySelector('.observacao').value;
+        const data = new Date().toLocaleDateString("pt-BR"); // Ex: "24/04/2025"
 
         corpo += `
         <div style="border: 1px solid #ccc; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px; background: #fafafa;">
@@ -212,9 +248,10 @@
         quantidade: '',
         unidade: '',
         marcas: '',
-        observacao: ''
+        observacao: '',
+        data: new Date().toLocaleDateString("pt-BR"),
       }).then(() => {
-        alert('Pedido enviado com sucesso!');
+        mostrarNotificacao();
         produtosContainer.innerHTML = '';
         addProduto(); // Adiciona um produto limpo
       }).catch(error => {
